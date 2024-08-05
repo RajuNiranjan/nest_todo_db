@@ -4,6 +4,7 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Todo } from './schema/todo.schema';
 import { Model } from 'mongoose';
+import { Query } from 'express-serve-static-core';
 
 @Injectable()
 export class TodoService {
@@ -26,8 +27,17 @@ export class TodoService {
     return todo;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async searchQuery(query: Query): Promise<Todo[]> {
+    const task = query.keyword
+      ? {
+          task: {
+            $regex: query.keyword,
+            $options: 'i',
+          },
+        }
+      : {};
+
+    return await this.todoModel.find(task);
   }
 
   async updateTask(id: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
