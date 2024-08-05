@@ -30,11 +30,26 @@ export class TodoService {
     return `This action returns a #${id} todo`;
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async updateTask(id: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
+    const { task, isCompleted } = updateTodoDto;
+
+    if (!task) {
+      throw new UnauthorizedException('task should not be empty');
+    }
+
+    const updateTask = await this.todoModel.findByIdAndUpdate(
+      id,
+      { task, isCompleted },
+      {
+        new: true,
+      },
+    );
+
+    return updateTask;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async removeTask(id: string): Promise<Todo> {
+    const todo = await this.todoModel.findByIdAndDelete(id);
+    return todo;
   }
 }
